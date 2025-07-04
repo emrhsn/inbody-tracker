@@ -9,36 +9,42 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-      --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-      --success-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-      --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+      --primary-color: #4CAF50;
+      --primary-light: #81C784;
+      --primary-dark: #388E3C;
+      --secondary-color: #2196F3;
+      --secondary-light: #64B5F6;
+      --accent-color: #FF9800;
+      --accent-light: #FFB74D;
+      --success-color: #4CAF50;
+      --warning-color: #FF9800;
+      --error-color: #F44336;
       
-      --bg-primary: #0f0f23;
-      --bg-secondary: #1a1a2e;
-      --bg-card: #16213e;
-      --bg-glass: rgba(255, 255, 255, 0.05);
-      --bg-overlay: rgba(0, 0, 0, 0.8);
+      --bg-primary: #FAFAFA;
+      --bg-secondary: #FFFFFF;
+      --bg-card: #FFFFFF;
+      --bg-light: #F5F5F5;
+      --bg-accent: #E8F5E8;
       
-      --text-primary: #ffffff;
-      --text-secondary: #b8b8d4;
-      --text-muted: #7c7c9a;
-      --text-accent: #667eea;
+      --text-primary: #2E2E2E;
+      --text-secondary: #616161;
+      --text-muted: #9E9E9E;
+      --text-light: #FFFFFF;
       
-      --border-color: rgba(255, 255, 255, 0.1);
-      --border-hover: rgba(255, 255, 255, 0.2);
+      --border-color: #E0E0E0;
+      --border-light: #F0F0F0;
+      --border-accent: #C8E6C9;
       
-      --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.1);
-      --shadow-medium: 0 8px 32px rgba(0, 0, 0, 0.2);
-      --shadow-strong: 0 16px 48px rgba(0, 0, 0, 0.3);
+      --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.1);
+      --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.12);
+      --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.08);
       
       --radius-sm: 8px;
       --radius-md: 12px;
       --radius-lg: 16px;
       --radius-xl: 24px;
       
-      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition: all 0.3s ease;
     }
 
     * {
@@ -55,7 +61,7 @@
       overflow-x: hidden;
     }
 
-    /* Animated background */
+    /* Subtle background pattern */
     body::before {
       content: '';
       position: fixed;
@@ -64,28 +70,17 @@
       width: 100%;
       height: 100%;
       background: 
-        radial-gradient(circle at 20% 20%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(118, 75, 162, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 40% 70%, rgba(75, 172, 254, 0.08) 0%, transparent 50%);
+        radial-gradient(circle at 20% 20%, rgba(76, 175, 80, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(33, 150, 243, 0.03) 0%, transparent 50%);
       z-index: -1;
-      animation: backgroundFloat 20s ease-in-out infinite;
-    }
-
-    @keyframes backgroundFloat {
-      0%, 100% { transform: translateY(0) rotate(0deg); }
-      50% { transform: translateY(-20px) rotate(1deg); }
     }
 
     h1 {
       text-align: center;
       margin: 2rem 0;
-      font-weight: 700;
+      font-weight: 600;
       font-size: clamp(1.8rem, 4vw, 2.5rem);
-      background: var(--primary-gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      text-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      color: var(--primary-color);
       position: relative;
     }
 
@@ -97,7 +92,7 @@
       transform: translateX(-50%);
       width: 60px;
       height: 3px;
-      background: var(--accent-gradient);
+      background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
       border-radius: 2px;
     }
 
@@ -112,18 +107,17 @@
     }
 
     .panel {
-      background: var(--bg-glass);
-      backdrop-filter: blur(20px);
+      background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-lg);
       overflow: hidden;
-      box-shadow: var(--shadow-medium);
+      box-shadow: var(--shadow-card);
       transition: var(--transition);
     }
 
     .panel:hover {
-      border-color: var(--border-hover);
-      box-shadow: var(--shadow-strong);
+      box-shadow: var(--shadow-medium);
+      border-color: var(--border-accent);
     }
 
     #leftPanel, #rightPanel {
@@ -139,7 +133,7 @@
       align-items: center;
       padding: 1rem;
       scrollbar-width: thin;
-      scrollbar-color: var(--text-accent) transparent;
+      scrollbar-color: var(--primary-color) transparent;
     }
 
     #contentArea::-webkit-scrollbar {
@@ -151,14 +145,14 @@
     }
 
     #contentArea::-webkit-scrollbar-thumb {
-      background: var(--text-accent);
+      background: var(--primary-color);
       border-radius: 3px;
     }
 
     .stickyHeader {
-      background: var(--bg-secondary);
+      background: var(--bg-accent);
       padding: 1.5rem;
-      border-bottom: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-accent);
       position: sticky;
       top: 0;
       z-index: 10;
@@ -167,36 +161,24 @@
     .clearButton {
       width: 100%;
       padding: 0.75rem 1rem;
-      background: var(--secondary-gradient);
-      color: white;
+      background: var(--error-color);
+      color: var(--text-light);
       border: none;
       border-radius: var(--radius-sm);
       cursor: pointer;
       font-size: 0.9rem;
       font-weight: 500;
       transition: var(--transition);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .clearButton::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-      transition: left 0.5s;
-    }
-
-    .clearButton:hover::before {
-      left: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
     }
 
     .clearButton:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(245, 87, 108, 0.4);
+      background: #d32f2f;
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-soft);
     }
 
     .checkboxContainer {
@@ -208,24 +190,24 @@
     .checkbox-item {
       display: flex;
       align-items: center;
-      margin-bottom: 1rem;
+      margin-bottom: 0.75rem;
       padding: 0.75rem;
       border-radius: var(--radius-sm);
       transition: var(--transition);
       cursor: pointer;
-      position: relative;
+      border: 1px solid transparent;
     }
 
     .checkbox-item:hover {
-      background: var(--bg-glass);
-      transform: translateX(4px);
+      background: var(--bg-light);
+      border-color: var(--border-accent);
     }
 
     .checkbox-item input[type="checkbox"] {
       width: 18px;
       height: 18px;
       margin-right: 0.75rem;
-      accent-color: var(--text-accent);
+      accent-color: var(--primary-color);
       cursor: pointer;
     }
 
@@ -247,11 +229,10 @@
       max-width: 900px;
       margin: 1.5rem 0;
       padding: 2rem;
-      background: var(--bg-glass);
-      backdrop-filter: blur(20px);
+      background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-medium);
+      box-shadow: var(--shadow-card);
     }
 
     .filter-row {
@@ -279,7 +260,7 @@
       padding: 0.75rem 1rem;
       border: 1px solid var(--border-color);
       border-radius: var(--radius-sm);
-      background: var(--bg-card);
+      background: var(--bg-secondary);
       color: var(--text-primary);
       font-size: 0.9rem;
       transition: var(--transition);
@@ -287,8 +268,8 @@
 
     .filter-box input[type="date"]:focus {
       outline: none;
-      border-color: var(--text-accent);
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
     }
 
     .filter-btn {
@@ -299,49 +280,70 @@
       font-size: 0.9rem;
       font-weight: 500;
       transition: var(--transition);
-      position: relative;
-      overflow: hidden;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
 
     .filter-btn.primary {
-      background: var(--primary-gradient);
-      color: white;
+      background: var(--primary-color);
+      color: var(--text-light);
+    }
+
+    .filter-btn.primary:hover {
+      background: var(--primary-dark);
     }
 
     .filter-btn.secondary {
-      background: var(--bg-card);
+      background: var(--bg-light);
       color: var(--text-secondary);
       border: 1px solid var(--border-color);
     }
 
+    .filter-btn.secondary:hover {
+      background: var(--bg-secondary);
+      border-color: var(--border-accent);
+    }
+
     .filter-btn.accent {
-      background: var(--accent-gradient);
-      color: white;
+      background: var(--secondary-color);
+      color: var(--text-light);
+    }
+
+    .filter-btn.accent:hover {
+      background: #1976D2;
     }
 
     .filter-btn.success {
-      background: var(--success-gradient);
-      color: white;
+      background: var(--success-color);
+      color: var(--text-light);
+    }
+
+    .filter-btn.success:hover {
+      background: var(--primary-dark);
     }
 
     .filter-btn.warning {
-      background: var(--warning-gradient);
-      color: white;
+      background: var(--warning-color);
+      color: var(--text-light);
+    }
+
+    .filter-btn.warning:hover {
+      background: #F57C00;
     }
 
     .filter-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-medium);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-soft);
     }
 
     #chartContainer {
       width: 100%;
       max-width: 1000px;
-      background: var(--bg-glass);
-      backdrop-filter: blur(20px);
+      background: var(--bg-card);
       padding: 2rem;
       border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-medium);
+      box-shadow: var(--shadow-card);
       border: 1px solid var(--border-color);
       height: 500px;
       position: relative;
@@ -353,13 +355,30 @@
       top: 0;
       left: 0;
       right: 0;
-      height: 1px;
-      background: var(--accent-gradient);
+      height: 2px;
+      background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
     }
 
     canvas {
       width: 100% !important;
       height: 100% !important;
+    }
+
+    /* Health-focused icons and styling */
+    .health-icon {
+      font-size: 1.1em;
+      margin-right: 0.25rem;
+    }
+
+    .panel-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--primary-color);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
 
     /* Mobile Responsive */
@@ -404,6 +423,7 @@
 
       .filter-btn {
         width: 100%;
+        justify-content: center;
       }
 
       #chartContainer {
@@ -426,15 +446,17 @@
         justify-content: space-between;
         align-items: center;
         padding: 1rem 1.5rem;
-        background: var(--bg-secondary);
+        background: var(--bg-accent);
         cursor: pointer;
         font-weight: 600;
-        color: var(--text-primary);
+        color: var(--primary-color);
+        border-bottom: 1px solid var(--border-accent);
       }
 
       .panel-header::after {
         content: '▼';
         transition: transform 0.3s ease;
+        color: var(--primary-color);
       }
 
       .panel-header.collapsed::after {
@@ -471,61 +493,65 @@
       }
     }
 
-    /* Loading animation */
-    .loading {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid var(--text-muted);
-      border-radius: 50%;
-      border-top-color: var(--text-accent);
-      animation: spin 1s ease-in-out infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    /* Pulse animation for active elements */
-    .pulse {
-      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.7; }
-    }
-
     /* Smooth scrollbar */
     ::-webkit-scrollbar {
       width: 8px;
     }
 
     ::-webkit-scrollbar-track {
-      background: var(--bg-secondary);
+      background: var(--bg-light);
+      border-radius: 4px;
     }
 
     ::-webkit-scrollbar-thumb {
-      background: var(--text-accent);
+      background: var(--primary-color);
       border-radius: 4px;
     }
 
     ::-webkit-scrollbar-thumb:hover {
-      background: var(--text-primary);
+      background: var(--primary-dark);
+    }
+
+    /* Health app specific styling */
+    .metric-group {
+      border-left: 3px solid var(--primary-color);
+      padding-left: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .metric-category {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.5rem;
+    }
+
+    .health-stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .health-stats:last-child {
+      border-bottom: none;
     }
   </style>
 </head>
 <body>
-  <h1>InBody ve Kalori Takibi</h1>
+  <h1>
+    <span class="health-icon">🏥</span>
+    InBody ve Kalori Takibi
+  </h1>
   <div id="mainContainer">
     <div id="leftPanel" class="panel">
       <div class="stickyHeader">
         <button class="clearButton" onclick="clearSelections()">
-          <span>🗑️ Tüm Seçimleri Sil</span>
+          <span>🗑️</span>
+          Seçimleri Temizle
         </button>
-      </div>
-      <div class="panel-header" onclick="togglePanel('left')">
-        Makro Değerleri
       </div>
       <div id="checkboxContainerLeft" class="checkboxContainer panel-content"></div>
     </div>
@@ -534,20 +560,37 @@
       <div id="dateFilter" class="filter-box">
         <div class="filter-row">
           <label>
-            📅 Başlangıç Tarihi
+            <span class="health-icon">📅</span>
+            Başlangıç Tarihi
             <input type="date" id="startDate">
           </label>
           <label>
-            📅 Bitiş Tarihi
+            <span class="health-icon">📅</span>
+            Bitiş Tarihi
             <input type="date" id="endDate">
           </label>
-          <button class="filter-btn primary" onclick="filterByDate()">🔍 Filtrele</button>
-          <button class="filter-btn secondary" onclick="resetFilter()">🔄 Sıfırla</button>
+          <button class="filter-btn primary" onclick="filterByDate()">
+            <span>🔍</span>
+            Filtrele
+          </button>
+          <button class="filter-btn secondary" onclick="resetFilter()">
+            <span>🔄</span>
+            Sıfırla
+          </button>
         </div>
         <div class="filter-row">
-          <button class="filter-btn accent" onclick="filterLastDays(7)">📊 Son 1 Hafta</button>
-          <button class="filter-btn success" onclick="filterLastDays(14)">📈 Son 2 Hafta</button>
-          <button class="filter-btn warning" onclick="filterLastDays(30)">📋 Son 1 Ay</button>
+          <button class="filter-btn accent" onclick="filterLastDays(7)">
+            <span>📊</span>
+            Son 1 Hafta
+          </button>
+          <button class="filter-btn success" onclick="filterLastDays(14)">
+            <span>📈</span>
+            Son 2 Hafta
+          </button>
+          <button class="filter-btn warning" onclick="filterLastDays(30)">
+            <span>📋</span>
+            Son 1 Ay
+          </button>
         </div>
       </div>
 
@@ -559,11 +602,9 @@
     <div id="rightPanel" class="panel">
       <div class="stickyHeader">
         <button class="clearButton" onclick="clearSelections()">
-          <span>🗑️ Tüm Seçimleri Sil</span>
+          <span>🗑️</span>
+          Seçimleri Temizle
         </button>
-      </div>
-      <div class="panel-header" onclick="togglePanel('right')">
-        Vücut Ölçümleri
       </div>
       <div id="checkboxContainerRight" class="checkboxContainer panel-content"></div>
     </div>
@@ -764,12 +805,12 @@
           label: headers[colIndex],
           data: filteredData.map(row => parseFloat(row[colIndex])),
           borderColor: color,
-          backgroundColor: color + '33',
+          backgroundColor: color + '20',
           fill: false,
-          tension: 0.4,
-          borderWidth: 3,
-          pointRadius: 5,
-          pointHoverRadius: 8,
+          tension: 0.3,
+          borderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
           pointBackgroundColor: color,
           pointBorderColor: '#ffffff',
           pointBorderWidth: 2,
@@ -780,9 +821,9 @@
       if (chart) chart.destroy();
       const ctx = document.getElementById('myChart').getContext('2d');
       
-      // Set dark theme for chart
-      Chart.defaults.color = '#b8b8d4';
-      Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+      // Set light theme for chart
+      Chart.defaults.color = '#616161';
+      Chart.defaults.borderColor = '#E0E0E0';
       
       chart = new Chart(ctx, {
         type: 'line',
@@ -798,7 +839,7 @@
             legend: { 
               position: 'top',
               labels: {
-                color: '#ffffff',
+                color: '#2E2E2E',
                 font: { size: 12, weight: '500' },
                 padding: 20,
                 usePointStyle: true,
@@ -807,7 +848,7 @@
             },
             title: { display: false },
             datalabels: {
-              display: false // Disable to keep chart clean
+              display: false
             }
           },
           scales: {
@@ -818,29 +859,29 @@
                 maxRotation: 45, 
                 minRotation: 45, 
                 font: { size: 10 },
-                color: '#b8b8d4'
+                color: '#616161'
               },
               grid: {
-                color: 'rgba(255, 255, 255, 0.1)',
+                color: '#F0F0F0',
                 drawBorder: false
               }
             },
             y: { 
               beginAtZero: true, 
               position: 'left',
-              ticks: { color: '#b8b8d4' },
+              ticks: { color: '#616161' },
               grid: {
-                color: 'rgba(255, 255, 255, 0.1)',
+                color: '#F0F0F0',
                 drawBorder: false
               }
             },
             y2: { 
               beginAtZero: true, 
               position: 'right',
-              ticks: { color: '#b8b8d4' },
+              ticks: { color: '#616161' },
               grid: { 
                 drawOnChartArea: false,
-                color: 'rgba(255, 255, 255, 0.1)',
+                color: '#F0F0F0',
                 drawBorder: false
               }
             }
@@ -848,7 +889,7 @@
           elements: { 
             point: { 
               radius: 4,
-              hoverRadius: 8
+              hoverRadius: 6
             }
           }
         }
@@ -861,9 +902,9 @@
 
     function getColor(i) {
       const colors = [
-        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', 
-        '#9966FF', '#FF9F40', '#FF6B6B', '#4ECDC4',
-        '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD'
+        '#4CAF50', '#2196F3', '#FF9800', '#9C27B0', 
+        '#F44336', '#00BCD4', '#8BC34A', '#FF5722',
+        '#3F51B5', '#009688', '#CDDC39', '#E91E63'
       ];
       return colors[i % colors.length];
     }
