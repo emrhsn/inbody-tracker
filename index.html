@@ -56,7 +56,13 @@
       font-size: 14px;
     }
     .clearButton:hover { background-color: #e55375; }
-    .checkboxContainer { padding: 10px 15px; }
+    .checkboxContainer {
+  padding: 10px 15px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+}
+
     .checkbox-item {
       display: flex;
       align-items: center;
