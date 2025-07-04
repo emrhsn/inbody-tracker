@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Beslenme ve InBody Trend Takipçisi</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      background: #f8f8f8;
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    h1 { text-align: center; margin: 20px; }
+    #topInput, #dateFilter { text-align: center; margin: 10px; }
+    #mainContainer { display: flex; height: calc(100vh - 220px); overflow: hidden; }
+    #leftPanel {
+      flex: 0 0 250px;
+      background: #fff;
+      border-right: 1px solid #ddd;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    #contentArea {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      align-items: center;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+    .stickyHeader {
+      display: none;
+      position: sticky;
+      top: 0;
+      background-color: #fff;
+      z-index: 10;
+      padding: 10px 15px;
+      border-bottom: 1px solid #eaeaea;
+    }
+    .clearButton {
+      margin-top: 5px;
+      padding: 8px 12px;
+      background-color: #FF6384;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .clearButton:hover { background-color: #e55375; }
+    .checkboxContainer { padding: 10px 15px; }
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .checkbox-item input { margin-right: 8px; }
+    .chartContainer {
+      width: 100%;
+      max-width: 1000px;
+      background: #fff;
+      padding: 20px;
+      margin: 20px auto;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      height: 500px;
+    }
+    canvas { width: 100% !important; height: 100% !important; }
+  </style>
+</head>
+<body>
+  <h1>Beslenme ve InBody Trend Takipçisi</h1>
+  <div id="dateFilter">
+    <label>Başlangıç Tarihi: <input type="date" id="startDate"></label>
+    <label>Bitiş Tarihi: <input type="date" id="endDate"></label>
+    <button onclick="applyDateFilter()">Filtrele</button>
+    <button onclick="quickRange(7)">Son 1 Hafta</button>
+    <button onclick="quickRange(14)">Son 2 Hafta</button>
+    <button onclick="quickRange(30)">Son 1 Ay</button>
+  </div>
+  <div id="mainContainer">
+    <div id="leftPanel">
+      <div id="stickyHeader" class="stickyHeader">
+        <h3>Seçilecek Ölçümler</h3>
+        <button id="clearButton" class="clearButton" onclick="clearSelections()">Tüm Seçimleri Sil</button>
+      </div>
+      <div id="checkboxContainer" class="checkboxContainer"></div>
+    </div>
+    <div id="contentArea">
+      <div id="chartContainer" class="chartContainer">
+        <canvas id="myChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let data = [];
+    let filteredData = [];
+    let headers = [];
+    let chart;
+
+    const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTXVH_pipzOkKOCuszYVNwNT0azpglseQnpsP1oYTTl7eQVtP1xw9LJLSwea_LlHqlF1L_HTiUKHvjV/pub?output=csv";
+
+window.onload = () => {
+  fetch(CSV_URL)
+    .then(res => res.text())
+    .then(csv => parseCSV(csv))
+    .catch(err => alert("CSV yüklenemedi: " + err));
+};
+
+
+    function handleFile(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const dataBinary = e.target.result;
+        const workbook = XLSX.read(dataBinary, {type: 'binary'});
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const jsonData = XLSX.utils.sheet_to_json(sheet, {header:1});
+
+        if (!jsonData || jsonData.length < 2) {
+          alert('Excel dosyasında başlık ve en az bir veri satırı olmalı.');
+          return;
+        }
+
+        headers = jsonData[0];
+        if (!headers || headers.length < 2) {
+          alert('Başlık satırı bulunamadı veya eksik. Lütfen dosyanın ilk satırını başlıklarla doldurun.');
+          return;
+        }
+
+        data = jsonData.slice(1).map(row => {
+          if (!row[0]) return null;
+          const newRow = [...row];
+          newRow[0] = excelDateToJSDate(newRow[0]);
+          return newRow;
+        }).filter(Boolean);
+
+        if (data.length === 0) {
+          alert('Geçerli veri satırı bulunamadı!');
+          return;
+        }
+
+        filteredData = data.slice();
+        showColumns();
+        clearChart();
+      };
+      reader.readAsBinaryString(file);
+    }
+
+    function excelDateToJSDate(excelDate) {
+      if (typeof excelDate === 'number') {
+        const jsDate = XLSX.SSF.parse_date_code(excelDate);
+        return new Date(jsDate.y, jsDate.m - 1, jsDate.d);
+      }
+      const parts = excelDate.split(/[./-]/).map(Number);
+      if (parts.length === 3) return new Date(parts[2], parts[1]-1, parts[0]);
+      return new Date(excelDate);
+    }
+
+    function showColumns() {
+      const container = document.getElementById('checkboxContainer');
+      const headerDiv = document.getElementById('stickyHeader');
+      container.innerHTML = '';
+
+      if (!headers || headers.length <= 1) {
+        headerDiv.style.display = 'none';
+        return;
+      }
+
+      headerDiv.style.display = 'block';
+      for (let index = 1; index < headers.length; index++) {
+        const id = `col_${index}`;
+        const div = document.createElement('div');
+        div.className = 'checkbox-item';
+        div.innerHTML = `<input type="checkbox" id="${id}" value="${index}" onchange="updateChart()"> <label for="${id}">${headers[index]}</label>`;
+        container.appendChild(div);
+      }
+    }
+
+    function clearSelections() {
+      for (let index = 1; index < headers.length; index++) {
+        const checkbox = document.getElementById(`col_${index}`);
+        if (checkbox) checkbox.checked = false;
+      }
+      clearChart();
+    }
+
+    function updateChart() {
+      const selectedIndexes = [];
+      for (let index = 1; index < headers.length; index++) {
+        if (document.getElementById(`col_${index}`)?.checked) {
+          selectedIndexes.push(index);
+        }
+      }
+      if (selectedIndexes.length === 0) {
+        clearChart();
+        return;
+      }
+
+      const source = filteredData.length ? filteredData : data;
+      const labels = source.map(row => formatDateLabel(row[0]));
+      const datasets = selectedIndexes.map((colIndex, i) => {
+        const color = getColor(i);
+        return {
+          label: headers[colIndex],
+          data: source.map(row => parseFloat(row[colIndex])),
+          borderColor: color,
+          backgroundColor: color + '33',
+          fill: false,
+          tension: 0.2,
+          yAxisID: decideAxis(headers[colIndex])
+        };
+      });
+
+      if (chart) chart.destroy();
+      const ctx = document.getElementById('myChart').getContext('2d');
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'top' },
+            title: { display: true, text: 'Beslenme ve InBody Ölçüm Grafiği' },
+            datalabels: {
+              anchor: 'end',
+              align: 'top',
+              color: '#333',
+              font: { weight: 'bold', size: 10 },
+              formatter: value => (!value || value === 0) ? '' : value.toFixed(1)
+            }
+          },
+          scales: {
+            x: {
+              type: 'category',
+              offset: false,
+              title: { display: true, text: headers[0] },
+              grid: { color: '#eaeaea' },
+              ticks: {
+                autoSkip: false,
+                maxRotation: 45,
+                minRotation: 45,
+                padding: 8,
+                font: { size: 10 }
+              }
+            },
+            y: {
+              beginAtZero: true,
+              position: 'left',
+              title: { display: false, text: 'Kalori veya Büyük Değerler' },
+              grid: { color: '#eaeaea' }
+            },
+            y2: {
+              beginAtZero: true,
+              position: 'right',
+              title: { display: false, text: 'Yağ Oranı veya Küçük Değerler' },
+              grid: { drawOnChartArea: false }
+            }
+          },
+          elements: { point: { radius: 3 } }
+        },
+        plugins: [ChartDataLabels]
+      });
+    }
+
+    function formatDateLabel(date) {
+      return `${date.getDate().toString().padStart(2,'0')}.${(date.getMonth()+1).toString().padStart(2,'0')}.${date.getFullYear()}`;
+    }
+
+    function clearChart() {
+      if (chart) chart.destroy();
+    }
+
+    function applyDateFilter() {
+      const start = document.getElementById('startDate').value;
+      const end = document.getElementById('endDate').value;
+      if (!start || !end) {
+        alert('Başlangıç ve bitiş tarihini seçin.');
+        return;
+      }
+      const startDate = new Date(start);
+      const endDate = new Date(end);
+      filteredData = data.filter(row => row[0] >= startDate && row[0] <= endDate);
+      updateChart();
+    }
+
+    function quickRange(days) {
+      if (data.length === 0) return;
+      const lastDate = data[data.length -1][0];
+      const firstDate = new Date(lastDate);
+      firstDate.setDate(firstDate.getDate() - (days - 1));
+      document.getElementById('startDate').value = firstDate.toISOString().slice(0,10);
+      document.getElementById('endDate').value = lastDate.toISOString().slice(0,10);
+      applyDateFilter();
+    }
+
+    function getColor(i) {
+      const colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
+      return colors[i % colors.length];
+    }
+
+    function decideAxis(columnName) {
+      const lower = columnName.toLowerCase();
+      if (lower.includes('kalori') || lower.includes('enerji')) return 'y';
+      return 'y2';
+    }
+
+    function parseCSV(csv) {
+  const rows = csv.trim().split("\n").map(r => r.split(","));
+  headers = rows[0];
+  data = rows.slice(1).map(row => {
+    const date = parseDate(row[0]);
+    return [date, ...row.slice(1).map(parseFloat)];
+  });
+  filteredData = data.slice();
+  showColumns();
+  clearChart();
+}
+
+function parseDate(str) {
+  if (str.includes(".")) {
+    const [d,m,y] = str.split(".").map(Number);
+    return new Date(y, m-1, d);
+  }
+  if (str.includes("-")) return new Date(str);
+  return new Date(str);
+}
+
+  </script>
+</body>
+</html>
